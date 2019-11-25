@@ -9,6 +9,8 @@ Known Bugs:
 
 - System hangs once a day and must be restarted. Reason unknown.
 
+See it in action here: <a href="http://www.afrothunder.com/solar.html")LongDog Power Plant</a>
+
 Arduino compatible project to interface with the BMS slave 
 board on Tesla Model S modules.
 
