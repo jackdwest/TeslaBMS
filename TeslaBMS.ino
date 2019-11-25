@@ -11,8 +11,8 @@
 #include <due_wire.h>
 #include <Wire_EEPROM.h>
 
-//#define BMS_BAUD  612500
-#define BMS_BAUD  617647
+#define BMS_BAUD  612500
+//#define BMS_BAUD  631578
 //#define BMS_BAUD  608695
 
 BMSModuleManager bms;
@@ -57,13 +57,13 @@ void loadSettings()
         settings.checksum = 0;
         settings.canSpeed = 500000;
         settings.batteryID = 0x01; //in the future should be 0xFF to force it to ask for an address
-        settings.OverVSetpoint = 4.1f;
-        settings.UnderVSetpoint = 2.3f;
+        settings.OverVSetpoint = 4.19f;
+        settings.UnderVSetpoint = 3.3f;
         settings.OverTSetpoint = 65.0f;
         settings.UnderTSetpoint = -10.0f;
-        settings.balanceVoltage = 3.9f;
-        settings.balanceHyst = 0.04f;
-        settings.logLevel = 2;
+        settings.balanceVoltage = 3.5f;
+        settings.balanceHyst = 0.007f;
+        settings.logLevel = 4;
         EEPROM.write(EEPROM_PAGE, settings);
     }
     else {
@@ -122,11 +122,12 @@ void loop()
 
     console.loop();
 
-    if (millis() > (lastUpdate + 1000))
+    if (millis() > (lastUpdate + 30000))
     {    
         lastUpdate = millis();
-        bms.balanceCells();
+        //bms.balanceCells();
         bms.getAllVoltTemp();
+        bms.balanceCells();
     }
 
     if (Can0.available()) {
@@ -134,4 +135,3 @@ void loop()
         bms.processCANMsg(incoming);
     }
 }
-

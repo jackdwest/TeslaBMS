@@ -84,7 +84,16 @@ void BMSModule::readSetpoint()
   UVolt = 0.7 + (0.1* buff[7]);
   Tset = 35 + (5 * (buff[9] >> 4));
 } */
-
+void BMSModule::stopBalance()
+{
+  uint8_t buff[8];
+  uint8_t payload[4];
+  payload[0] = moduleAddress << 1;
+  payload[1] = REG_BAL_CTRL;
+  payload[2] = 0; //write balance state to register
+  BMSUtil::sendDataWithReply(payload, 3, true, buff, 4);
+  delay(2);
+}
 bool BMSModule::readModuleValues()
 {
     uint8_t payload[4];
@@ -283,7 +292,7 @@ void BMSModule::setExists(bool ex)
     exists = ex;
 }
 
-void BMSModule::balanceCells()
+void BMSModule::balanceCells(float lowestCell)
 {
     uint8_t payload[4];
     uint8_t buff[30];
@@ -298,9 +307,15 @@ void BMSModule::balanceCells()
 
     for (int i = 0; i < 6; i++)
     {
-        if ( (balanceState[i] == 0) && (getCellVoltage(i) > settings.balanceVoltage) ) balanceState[i] = 1;
+    
+        //if ( (balanceState[i] == 0) && (getCellVoltage(i) > settings.balanceVoltage) ) balanceState[i] = 1;
 
-        if ( /*(balanceState[i] == 1) &&*/ (getCellVoltage(i) < (settings.balanceVoltage - settings.balanceHyst)) ) balanceState[i] = 0;
+        //if ( /*(balanceState[i] == 1) &&*/ (getCellVoltage(i) < (settings.balanceVoltage - settings.balanceHyst)) ) balanceState[i] = 0;
+
+        //Logger::info("Low Cell voltage after passing is: %f", lowestCell);
+        //Logger::error("Low Cell/Current Cell: %fV / %fV", lowestCell, getCellVoltage(i));
+        if ( (balanceState[i] == 0) && (getCellVoltage(i) > settings.balanceVoltage) && ((lowestCell + settings.balanceHyst) <= getCellVoltage(i)) ) balanceState[i] = 1;
+        if ( /*(balanceState[i] == 1) &&*/ (getCellVoltage(i) < (lowestCell + settings.balanceHyst)) ) balanceState[i] = 0;
 
         if (balanceState[i] == 1) balance |= (1<<i);
     }

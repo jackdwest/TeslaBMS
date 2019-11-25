@@ -63,6 +63,7 @@ void SerialConsole::loop() {
         prettyCounter = millis();
         if (whichDisplay == 0) bms.printPackSummary();
         if (whichDisplay == 1) bms.printPackDetails();
+        if (whichDisplay == 2) bms.jsonData();
     }
 }
 
@@ -301,7 +302,7 @@ void SerialConsole::handleShortCmd() {
             printPrettyDisplay = !printPrettyDisplay;
             if (printPrettyDisplay)
             {
-                Logger::console("Enabling pack summary display, 5 second interval");
+                Logger::console("Enabling pack summary display, 3 second interval");
             }
             else
             {
@@ -317,12 +318,20 @@ void SerialConsole::handleShortCmd() {
             whichDisplay = 1;
             if (printPrettyDisplay)
             {
-                Logger::console("Enabling pack details display, 5 second interval");
+                Logger::console("Enabling pack details display, 3 second interval");
             }
             else
             {
                 Logger::console("No longer displaying pack details.");
             }
+        }
+        break;
+     case 'j':
+        if ((whichDisplay == 1 || whichDisplay == 0) && printPrettyDisplay) whichDisplay = 2;
+        else
+        {
+            printPrettyDisplay = !printPrettyDisplay;
+            whichDisplay = 2;
         }
         break;
     }

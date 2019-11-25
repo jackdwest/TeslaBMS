@@ -5,6 +5,7 @@ class BMSModule
 public:
     BMSModule();
     void readStatus();
+    void stopBalance();
     bool readModuleValues();
     float getCellVoltage(int cell);
     float getLowCellV();
@@ -29,7 +30,7 @@ public:
     int getAddress();
     bool isExisting();
     void setExists(bool ex);
-    void balanceCells();
+    void balanceCells(float lowestCell);
     uint8_t getBalancingState(int cell);
 
 private:

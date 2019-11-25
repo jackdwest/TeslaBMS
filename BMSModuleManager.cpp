@@ -18,11 +18,42 @@ BMSModuleManager::BMSModuleManager()
     isFaulted = false;
 }
 
+//void BMSModuleManager::balanceCells()
+//{  
+//  float lowestCell = 10.0f;
+//  for (int x = 1; x <= MAX_MODULE_ADDR; x++)
+//    {
+//        if (modules[x].isExisting()) 
+//        {            
+//            modules[x].readModuleValues();
+//            if (modules[x].getLowCellV() < lowestCell) lowestCell = modules[x].getLowCellV();        
+//        }
+//    }
+//  
+//    for (int address = 1; address <= MAX_MODULE_ADDR; address++)
+//    {
+//        //modules[address].readModuleValues();
+//        //Logger::info("Low Cell voltage before passing is: %f", lowestCell);
+//        if (modules[address].isExisting()) modules[address].balanceCells(lowestCell);
+//    }
+//}
+
 void BMSModuleManager::balanceCells()
 {  
-    for (int address = 1; address <= MAX_MODULE_ADDR; address++)
+  float lowestCell = 10.0f;
+  for (int x = 1; x <= MAX_MODULE_ADDR; x++) //start cycling thru packs
     {
-        if (modules[address].isExisting()) modules[address].balanceCells();
+        if (modules[x].isExisting()) //end the loop if we're out of packs
+        {            
+            modules[x].readModuleValues(); //get some data
+            if (modules[x].getLowCellV() < lowestCell) lowestCell = modules[x].getLowCellV(); //Determine lowest value of of a pack and set lowestCell
+        }
+        if ( x%2 == 0) //Run this code if we're on an even numbered pack (so we do this for every two packs i.e, each string
+        {
+          modules[x-1].balanceCells(lowestCell); //Balance to the lowestCell (potentially) for the previously number pack. Tolerance is 0.007f
+          modules[x].balanceCells(lowestCell); //Balance to the lowestCell (potentially) for the current pack
+          lowestCell = 10.0f; //Reset lowestCell value for the next two packs
+        }
     }
 }
 
@@ -224,6 +255,14 @@ void BMSModuleManager::getAllVoltTemp()
 {
     packVolt = 0.0f;
     for (int x = 1; x <= MAX_MODULE_ADDR; x++)
+  {
+    if (modules[x].isExisting())
+    {
+      modules[x].stopBalance();
+    }
+  }
+  delay(1000);
+    for (int x = 1; x <= MAX_MODULE_ADDR; x++)
     {
         if (modules[x].isExisting()) 
         {
@@ -238,9 +277,10 @@ void BMSModuleManager::getAllVoltTemp()
             if (modules[x].getHighTemp() > highestPackTemp) highestPackTemp = modules[x].getHighTemp();            
         }
     }
-
+    
     if (packVolt > highestPackVolt) highestPackVolt = packVolt;
     if (packVolt < lowestPackVolt) lowestPackVolt = packVolt;
+    packVolt = packVolt/6;
 
     if (digitalRead(13) == LOW) {
         if (!isFaulted) Logger::error("One or more BMS modules have entered the fault state!");
@@ -292,9 +332,9 @@ void BMSModuleManager::printPackSummary()
     Logger::console("");
     Logger::console("");
     Logger::console("");
-    Logger::console("                                     Pack Status:");
-    if (isFaulted) Logger::console("                                       FAULTED!");
-    else Logger::console("                                   All systems go!");
+    SerialUSB.print("                                     Pack Summary:");
+    if (isFaulted) SerialUSB.println(" FAULTED!");
+    else SerialUSB.println(" All systems go!");
     Logger::console("Modules: %i    Voltage: %fV   Avg Cell Voltage: %fV     Avg Temp: %fC ", numFoundModules, 
                     getPackVoltage(),getAvgCellVolt(), getAvgTemperature());
     Logger::console("");
@@ -421,9 +461,9 @@ void BMSModuleManager::printPackDetails()
     Logger::console("");
     Logger::console("");
     Logger::console("");
-    Logger::console("                                         Pack Status:");
-    if (isFaulted) Logger::console("                                           FAULTED!");
-    else Logger::console("                                      All systems go!");
+    SerialUSB.print("                                         Detailed Pack Status:");
+    if (isFaulted) SerialUSB.println(" FAULTED!");
+    else SerialUSB.println(" All systems go!");
     Logger::console("Modules: %i    Voltage: %fV   Avg Cell Voltage: %fV     Avg Temp: %fC ", numFoundModules, 
                     getPackVoltage(),getAvgCellVolt(), getAvgTemperature());
     Logger::console("");
@@ -445,7 +485,7 @@ void BMSModuleManager::printPackDetails()
             for (int i = 0; i < 6; i++)
             {
                 if (cellNum < 10) SerialUSB.print(" ");
-                SerialUSB.print("  Cell");
+                SerialUSB.print("  C");
                 SerialUSB.print(cellNum++);
                 SerialUSB.print(": ");
                 SerialUSB.print(modules[y].getCellVoltage(i));
@@ -453,13 +493,53 @@ void BMSModuleManager::printPackDetails()
                 if (modules[y].getBalancingState(i) == 1) SerialUSB.print("*");
                 else SerialUSB.print(" ");
             }
-            SerialUSB.print("  Neg Term Temp: ");
+            SerialUSB.print("  - Temp: ");
             SerialUSB.print(modules[y].getTemperature(0));
-            SerialUSB.print("C  Pos Term Temp: ");
+            SerialUSB.print("C  + Temp: ");
             SerialUSB.print(modules[y].getTemperature(1)); 
             SerialUSB.println("C");
         }
     }
+}
+
+void BMSModuleManager::jsonData()
+{
+/* start old code ------------
+    SerialUSB.print("{\"avgCellVolt\":\"" + String(getAvgCellVolt()) +
+                     "\", \"highestPackVolt\":\"" + String(getHighestModuleVolt());
+
+    if (modules[y].isExisting())
+        {
+            SerialUSB.print("\", \"M" + y + "\":\"" + String(modules[y].getModuleVoltage()) + ;
+            //SerialUSB.print("V\"");
+            for (int i = 0; i < 6; i++)
+            {
+                SerialUSB.print("\", \"C" + cellNum++ + "\":\"" + String(modules[y].getCellVoltage()) + ;
+                //SerialUSB.print("V");
+                if (modules[y].getBalancingState(i) == 1) SerialUSB.print("*\"");
+                else SerialUSB.print("\"");
+            }
+                     
+                     "\"}");
+                     -----------end old code*/
+  for (int y = 1; y < 63; y++)
+  {
+    if (modules[y].isExisting())
+    {
+      SerialUSB.print(y);
+      SerialUSB.print(",");
+      for (int i = 0; i < 6; i++)
+      {
+        SerialUSB.print(modules[y].getCellVoltage(i), 3);
+        if (modules[y].getBalancingState(i) == 1) SerialUSB.print("*");
+        SerialUSB.print(",");
+      }
+      SerialUSB.print(modules[y].getTemperature(0));
+      SerialUSB.print(",");
+      SerialUSB.println(modules[y].getTemperature(1));
+
+    }
+  }
 }
 
 void BMSModuleManager::processCANMsg(CAN_FRAME &frame)
@@ -578,4 +658,3 @@ void BMSModuleManager::setBatteryID()
     uint32_t canID = (0xBAul << 20) + (((uint32_t)settings.batteryID & 0xF) << 16);
     Can0.setRXFilter(0, canID, 0x1FFF0000ul, true);
 }
-
