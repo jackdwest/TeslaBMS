@@ -1,3 +1,14 @@
+My take on Collin's BMS. Changes listed below:
+
+- Now balances to the lowest cell between two packs conected together in series.
+- CSV output for those that might use it.
+- Cells balance for 30s and then update again, turning the balancers off momentarily to get accurate readings.
+- Baud set 612500 (I have older Tesla packs)
+
+Known Bugs:
+
+- System hangs once a day and must be restarted. Reason unknown.
+
 Arduino compatible project to interface with the BMS slave 
 board on Tesla Model S modules.
 
