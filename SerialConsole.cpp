@@ -49,9 +49,9 @@ void SerialConsole::init() {
     state = STATE_ROOT_MENU;
     loopcount=0;
     cancel=false;
-    printPrettyDisplay = false;
+    printPrettyDisplay = true;
     prettyCounter = 0;
-    whichDisplay = 0;
+    whichDisplay = 2;
 }
 
 void SerialConsole::loop() {  
