@@ -82,6 +82,7 @@ void SerialConsole::printMenu() {
     Logger::console("   B = Attempt balancing for 5 seconds");
     Logger::console("   p = Toggle output of pack summary every 3 seconds");
     Logger::console("   d = Toggle output of pack details every 3 seconds");
+    Logger::console("   j = Toggle output of CSV every 3 seconds");
 
     Logger::console("   LOGLEVEL=%i - set log level (0=debug, 1=info, 2=warn, 3=error, 4=off)", Logger::getLogLevel());
     Logger::console("   CANSPEED=%i - set first CAN bus speed", settings.canSpeed);
