@@ -63,7 +63,7 @@ void loadSettings()
         settings.UnderTSetpoint = -10.0f;
         settings.balanceVoltage = 3.5f;
         settings.balanceHyst = 0.007f;
-        settings.logLevel = 4;
+        settings.logLevel = 3;
         EEPROM.write(EEPROM_PAGE, settings);
     }
     else {

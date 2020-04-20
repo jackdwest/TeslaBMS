@@ -49,9 +49,9 @@ void SerialConsole::init() {
     state = STATE_ROOT_MENU;
     loopcount=0;
     cancel=false;
-    printPrettyDisplay = true;
+    printPrettyDisplay = false;
     prettyCounter = 0;
-    whichDisplay = 2;
+    whichDisplay = 0;
 }
 
 void SerialConsole::loop() {  
@@ -82,7 +82,6 @@ void SerialConsole::printMenu() {
     Logger::console("   B = Attempt balancing for 5 seconds");
     Logger::console("   p = Toggle output of pack summary every 3 seconds");
     Logger::console("   d = Toggle output of pack details every 3 seconds");
-    Logger::console("   j = Toggle output of CSV every 3 seconds");
 
     Logger::console("   LOGLEVEL=%i - set log level (0=debug, 1=info, 2=warn, 3=error, 4=off)", Logger::getLogLevel());
     Logger::console("   CANSPEED=%i - set first CAN bus speed", settings.canSpeed);
@@ -333,61 +332,15 @@ void SerialConsole::handleShortCmd() {
         {
             printPrettyDisplay = !printPrettyDisplay;
             whichDisplay = 2;
+            if (printPrettyDisplay)
+            {
+                Logger::console("Enabling JSON display, 3 second interval");
+            }
+            else
+            {
+                Logger::console("No longer displaying JSON.");
+            }
         }
         break;
     }
 }
-
-/*
-    if (SERIALCONSOLE.available()) 
-    {
-        char y = SERIALCONSOLE.read();
-        switch (y)
-        {
-        case '1': //ascii 1
-            renumberBoardIDs();  // force renumber and read out
-            break;
-        case '2': //ascii 2
-            SERIALCONSOLE.println();
-            findBoards();
-            break;
-        case '3': //activate cell balance for 5 seconds 
-            SERIALCONSOLE.println();
-            SERIALCONSOLE.println("Balancing");
-            cellBalance();
-            break;
-      case '4': //clear all faults on all boards, required after Reset or FPO (first power on)
-       SERIALCONSOLE.println();
-       SERIALCONSOLE.println("Clearing Faults");
-       clearFaults();
-      break;
-
-      case '5': //read out the status of first board
-       SERIALCONSOLE.println();
-       SERIALCONSOLE.println("Reading status");
-       readStatus(1);
-      break;
-
-      case '6': //Read out the limit setpoints of first board
-       SERIALCONSOLE.println();
-       SERIALCONSOLE.println("Reading Setpoints");
-       readSetpoint(1);
-       SERIALCONSOLE.println(OVolt);
-       SERIALCONSOLE.println(UVolt);
-       SERIALCONSOLE.println(Tset);
-      break; 
-
-      case '0': //Send all boards into Sleep state
-       Serial.println();
-       Serial.println("Sleep Mode");
-       sleepBoards();
-      break;
-
-      case '9'://Pull all boards out of Sleep state
-       Serial.println();
-       Serial.println("Wake Boards");
-       wakeBoards();
-      break;
-        }
-    }
- */

@@ -146,7 +146,6 @@ void BMSModuleManager::findBoards()
     }
 }
 
-
 /*
  * Force all modules to reset back to address 0 then set them all up in order so that the first module
  * in line from the master board is 1, the second one 2, and so on.
@@ -280,7 +279,7 @@ void BMSModuleManager::getAllVoltTemp()
     
     if (packVolt > highestPackVolt) highestPackVolt = packVolt;
     if (packVolt < lowestPackVolt) lowestPackVolt = packVolt;
-    packVolt = packVolt/6;
+    packVolt = (packVolt/numFoundModules)*2;
 
     if (digitalRead(13) == LOW) {
         if (!isFaulted) Logger::error("One or more BMS modules have entered the fault state!");
@@ -335,7 +334,7 @@ void BMSModuleManager::printPackSummary()
     SerialUSB.print("                                     Pack Summary:");
     if (isFaulted) SerialUSB.println(" FAULTED!");
     else SerialUSB.println(" All systems go!");
-    Logger::console("Modules: %i    Voltage: %fV   Avg Cell Voltage: %fV     Avg Temp: %fC ", numFoundModules, 
+    Logger::console("Modules: %i    System Voltage: %fV   Avg Cell Voltage: %fV     Avg Temp: %fC ", numFoundModules, 
                     getPackVoltage(),getAvgCellVolt(), getAvgTemperature());
     Logger::console("");
     for (int y = 1; y < 63; y++)
@@ -457,6 +456,7 @@ void BMSModuleManager::printPackDetails()
     uint8_t COV;
     uint8_t CUV;
     int cellNum = 0;
+    String msg;
 
     Logger::console("");
     Logger::console("");
@@ -464,7 +464,7 @@ void BMSModuleManager::printPackDetails()
     SerialUSB.print("                                         Detailed Pack Status:");
     if (isFaulted) SerialUSB.println(" FAULTED!");
     else SerialUSB.println(" All systems go!");
-    Logger::console("Modules: %i    Voltage: %fV   Avg Cell Voltage: %fV     Avg Temp: %fC ", numFoundModules, 
+    Logger::console("Modules: %i    System Voltage: %fV   Avg Cell Voltage: %fV     Avg Temp: %fC ", numFoundModules, 
                     getPackVoltage(),getAvgCellVolt(), getAvgTemperature());
     Logger::console("");
     for (int y = 1; y < 63; y++)
@@ -476,53 +476,36 @@ void BMSModuleManager::printPackDetails()
             COV = modules[y].getCOVCells();
             CUV = modules[y].getCUVCells();
 
-            SerialUSB.print("Module #");
-            SerialUSB.print(y);
-            if (y < 10) SerialUSB.print(" ");
-            SerialUSB.print("  ");
-            SerialUSB.print(modules[y].getModuleVoltage());
-            SerialUSB.print("V");
+            msg = "Module #";
+            msg += y;
+            if (y < 10) msg += " ";
+            msg += "  ";
+            msg += modules[y].getModuleVoltage();
+            msg += "V";
             for (int i = 0; i < 6; i++)
             {
-                if (cellNum < 10) SerialUSB.print(" ");
-                SerialUSB.print("  C");
-                SerialUSB.print(cellNum++);
-                SerialUSB.print(": ");
-                SerialUSB.print(modules[y].getCellVoltage(i));
-                SerialUSB.print("V");
-                if (modules[y].getBalancingState(i) == 1) SerialUSB.print("*");
-                else SerialUSB.print(" ");
+                if (cellNum < 10) msg += " ";
+                msg += "  C";
+                msg += cellNum++;
+                msg += ": ";
+                msg += modules[y].getCellVoltage(i);
+                msg += "V";
+                if (modules[y].getBalancingState(i) == 1) msg += "*";
+                else msg += " ";
             }
-            SerialUSB.print("  - Temp: ");
-            SerialUSB.print(modules[y].getTemperature(0));
-            SerialUSB.print("C  + Temp: ");
-            SerialUSB.print(modules[y].getTemperature(1)); 
-            SerialUSB.println("C");
+            msg += "  - Temp: ";
+            msg += modules[y].getTemperature(0);
+            msg += "C  + Temp: ";
+            msg += modules[y].getTemperature(1); 
+            msg += "C";
+            SerialUSB.println(msg);
         }
     }
 }
 
 void BMSModuleManager::jsonData()
 {
-/* start old code ------------
-    SerialUSB.print("{\"avgCellVolt\":\"" + String(getAvgCellVolt()) +
-                     "\", \"highestPackVolt\":\"" + String(getHighestModuleVolt());
-
-    if (modules[y].isExisting())
-        {
-            SerialUSB.print("\", \"M" + y + "\":\"" + String(modules[y].getModuleVoltage()) + ;
-            //SerialUSB.print("V\"");
-            for (int i = 0; i < 6; i++)
-            {
-                SerialUSB.print("\", \"C" + cellNum++ + "\":\"" + String(modules[y].getCellVoltage()) + ;
-                //SerialUSB.print("V");
-                if (modules[y].getBalancingState(i) == 1) SerialUSB.print("*\"");
-                else SerialUSB.print("\"");
-            }
-                     
-                     "\"}");
-                     -----------end old code*/
-  for (int y = 1; y < 63; y++)
+/* for (int y = 1; y < 63; y++)
   {
     if (modules[y].isExisting())
     {
@@ -540,6 +523,24 @@ void BMSModuleManager::jsonData()
 
     }
   }
+*/
+    String msg;
+    for (int y = 1; y < 63; y++) {
+        if (modules[y].isExisting()) {
+            msg = y;
+            msg += ",";
+            for (int i = 0; i < 6; i++) {
+                msg += String(modules[y].getCellVoltage(i), 3);
+                if (modules[y].getBalancingState(i) == 1) msg += "*";
+                msg += ",";
+            }
+            msg += modules[y].getTemperature(0);
+            msg += ",";
+            msg += modules[y].getTemperature(1);
+            
+            SerialUSB.println(msg);
+        }
+    }
 }
 
 void BMSModuleManager::processCANMsg(CAN_FRAME &frame)
