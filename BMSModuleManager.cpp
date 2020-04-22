@@ -524,7 +524,7 @@ void BMSModuleManager::jsonData()
     }
   }
 */
-    String msg;
+    String PROGMEM msg;
     for (int y = 1; y < 63; y++) {
         if (modules[y].isExisting()) {
             msg = y;

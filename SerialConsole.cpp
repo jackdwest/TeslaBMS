@@ -51,7 +51,7 @@ void SerialConsole::init() {
     cancel=false;
     printPrettyDisplay = false;
     prettyCounter = 0;
-    whichDisplay = 0;
+    whichDisplay = 2;
 }
 
 void SerialConsole::loop() {  
