@@ -505,10 +505,9 @@ void BMSModuleManager::printPackDetails()
 
 void BMSModuleManager::jsonData()
 {
-    String msg;
     for (int y = 1; y < 63; y++) {
         if (modules[y].isExisting()) {
-            msg = y;
+            String msg = String(y);
             msg += ",";
             for (int i = 0; i < 6; i++) {
                 msg += String(modules[y].getCellVoltage(i), 3);
