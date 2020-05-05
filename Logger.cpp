@@ -153,19 +153,19 @@ void Logger::log(LogLevel level, char *format, va_list args) {
 
     switch (level) {
     case Debug:
-        SERIALCONSOLE.print("DEBUG");
+        SERIALCONSOLE.print(F("DEBUG"));
         break;
     case Info:
-        SERIALCONSOLE.print("INFO");
+        SERIALCONSOLE.print(F("INFO"));
         break;
     case Warn:
-        SERIALCONSOLE.print("WARNING");
+        SERIALCONSOLE.print(F("WARNING"));
         break;
     case Error:
-        SERIALCONSOLE.print("ERROR");
+        SERIALCONSOLE.print(F("ERROR"));
         break;
     }
-    SERIALCONSOLE.print(": ");
+    SERIALCONSOLE.print(F(": "));
 
     logMessage(format, args);
 }

@@ -458,12 +458,12 @@ void BMSModuleManager::printPackDetails()
     int cellNum = 0;
     String msg;
 
-    Logger::console("");
-    Logger::console("");
+    //Logger::console("");
+    //Logger::console("");
     Logger::console("");
     SerialUSB.print("                                         Detailed Pack Status:");
-    if (isFaulted) SerialUSB.println(" FAULTED!");
-    else SerialUSB.println(" All systems go!");
+    if (isFaulted) SerialUSB.println(F(" FAULTED!"));
+    else SerialUSB.println(F(" All systems go!"));
     Logger::console("Modules: %i    System Voltage: %fV   Avg Cell Voltage: %fV     Avg Temp: %fC ", numFoundModules, 
                     getPackVoltage(),getAvgCellVolt(), getAvgTemperature());
     Logger::console("");
@@ -505,26 +505,7 @@ void BMSModuleManager::printPackDetails()
 
 void BMSModuleManager::jsonData()
 {
-/* for (int y = 1; y < 63; y++)
-  {
-    if (modules[y].isExisting())
-    {
-      SerialUSB.print(y);
-      SerialUSB.print(",");
-      for (int i = 0; i < 6; i++)
-      {
-        SerialUSB.print(modules[y].getCellVoltage(i), 3);
-        if (modules[y].getBalancingState(i) == 1) SerialUSB.print("*");
-        SerialUSB.print(",");
-      }
-      SerialUSB.print(modules[y].getTemperature(0));
-      SerialUSB.print(",");
-      SerialUSB.println(modules[y].getTemperature(1));
-
-    }
-  }
-*/
-    String PROGMEM msg;
+    String msg;
     for (int y = 1; y < 63; y++) {
         if (modules[y].isExisting()) {
             msg = y;

@@ -92,13 +92,13 @@ void setup()
 {
     delay(4000);  //just for easy debugging. It takes a few seconds for USB to come up properly on most OS's
     SERIALCONSOLE.begin(115200);
-    SERIALCONSOLE.println("Starting up!");
+    SERIALCONSOLE.println(F("Starting up!"));
     SERIAL.begin(BMS_BAUD);
 #if defined (__arm__) && defined (__SAM3X8E__)
     serialSpecialInit(USART0, BMS_BAUD); //required for Due based boards as the stock core files don't support 612500 baud.
 #endif
 
-    SERIALCONSOLE.println("Started serial interface to BMS.");
+    SERIALCONSOLE.println(F("Started serial interface to BMS."));
 
     pinMode(13, INPUT);
 
