@@ -36,7 +36,8 @@ extern EEPROMSettings settings;
 extern BMSModuleManager bms;
 
 bool printPrettyDisplay;
-uint32_t prettyCounter;
+unsigned long displayPreviousMillis=0;
+
 int whichDisplay;
 
 SerialConsole::SerialConsole() {
@@ -50,17 +51,19 @@ void SerialConsole::init() {
     loopcount=0;
     cancel=false;
     printPrettyDisplay = false;
-    prettyCounter = 0;
+    //prettyCounter = 0;
     whichDisplay = 2;
 }
 
-void SerialConsole::loop() {  
+void SerialConsole::loop() {
+     unsigned long currentMillis = millis();
+     int interval = 3000;
     if (SERIALCONSOLE.available()) {
         serialEvent();
     }
-    if (printPrettyDisplay && (millis() > (prettyCounter + 3000)))
+    if (printPrettyDisplay && ((unsigned long)(currentMillis - displayPreviousMillis) >= interval))
     {
-        prettyCounter = millis();
+        displayPreviousMillis = currentMillis;
         if (whichDisplay == 0) bms.printPackSummary();
         if (whichDisplay == 1) bms.printPackDetails();
         if (whichDisplay == 2) bms.jsonData();

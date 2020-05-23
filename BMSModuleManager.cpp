@@ -2,6 +2,7 @@
 #include "BMSModuleManager.h"
 #include "BMSUtil.h"
 #include "Logger.h"
+#include "MemoryFree.h"
 
 extern EEPROMSettings settings;
 
@@ -17,26 +18,6 @@ BMSModuleManager::BMSModuleManager()
     highestPackTemp = -100.0f;
     isFaulted = false;
 }
-
-//void BMSModuleManager::balanceCells()
-//{  
-//  float lowestCell = 10.0f;
-//  for (int x = 1; x <= MAX_MODULE_ADDR; x++)
-//    {
-//        if (modules[x].isExisting()) 
-//        {            
-//            modules[x].readModuleValues();
-//            if (modules[x].getLowCellV() < lowestCell) lowestCell = modules[x].getLowCellV();        
-//        }
-//    }
-//  
-//    for (int address = 1; address <= MAX_MODULE_ADDR; address++)
-//    {
-//        //modules[address].readModuleValues();
-//        //Logger::info("Low Cell voltage before passing is: %f", lowestCell);
-//        if (modules[address].isExisting()) modules[address].balanceCells(lowestCell);
-//    }
-//}
 
 void BMSModuleManager::balanceCells()
 {  
@@ -58,10 +39,10 @@ void BMSModuleManager::balanceCells()
 }
 
 /*
- * Try to set up any unitialized boards. Send a command to address 0 and see if there is a response. If there is then there is
- * still at least one unitialized board. Go ahead and give it the first ID not registered as already taken.
+ * Try to set up any uninitialized boards. Send a command to address 0 and see if there is a response. If there is then there is
+ * still at least one uninitialized board. Go ahead and give it the first ID not registered as already taken.
  * If we send a command to address 0 and no one responds then every board is inialized and this routine stops.
- * Don't run this routine until after the boards have already been enumerated.\
+ * Don't run this routine until after the boards have already been enumerated.
  * Note: The 0x80 conversion it is looking might in theory block the message from being forwarded so it might be required
  * To do all of this differently. Try with multiple boards. The alternative method would be to try to set the next unused
  * address and see if any boards respond back saying that they set the address. 
@@ -461,7 +442,7 @@ void BMSModuleManager::printPackDetails()
     //Logger::console("");
     //Logger::console("");
     Logger::console("");
-    SerialUSB.print("                                         Detailed Pack Status:");
+    SerialUSB.print(F("                                         Detailed Pack Status:"));
     if (isFaulted) SerialUSB.println(F(" FAULTED!"));
     else SerialUSB.println(F(" All systems go!"));
     Logger::console("Modules: %i    System Voltage: %fV   Avg Cell Voltage: %fV     Avg Temp: %fC ", numFoundModules, 
@@ -521,6 +502,8 @@ void BMSModuleManager::jsonData()
             SerialUSB.println(msg);
         }
     }
+    //SerialUSB.print(F("Free RAM = "));
+    //SerialUSB.println(freeMemory());
 }
 
 void BMSModuleManager::processCANMsg(CAN_FRAME &frame)

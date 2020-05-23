@@ -18,7 +18,8 @@
 BMSModuleManager bms;
 EEPROMSettings settings;
 SerialConsole console;
-uint32_t lastUpdate;
+unsigned long previousMillis=0;
+int interval = 30000;
 
 //This code only applicable to Due to fixup lack of functionality in the arduino core.
 #if defined (__arm__) && defined (__SAM3X8E__)
@@ -111,20 +112,21 @@ void setup()
 
     //Logger::setLoglevel(Logger::Debug);
 
-    lastUpdate = 0;
+    //lastUpdate = 0;
 
     bms.clearFaults();
 }
 
 void loop() 
 {
+    unsigned long currentMillis = millis();
     CAN_FRAME incoming;
 
     console.loop();
 
-    if (millis() > (lastUpdate + 30000))
+    if ((unsigned long)(currentMillis - previousMillis) >= interval)
     {    
-        lastUpdate = millis();
+        previousMillis = currentMillis;
         //bms.balanceCells();
         bms.getAllVoltTemp();
         bms.balanceCells();
