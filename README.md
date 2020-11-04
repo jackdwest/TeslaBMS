@@ -5,11 +5,16 @@ My take on Collin's BMS. Changes listed below:
 - Cells balance for 30s and then update again, turning the balancers off momentarily to get accurate readings.
 - Baud set 612500 (I have older Tesla packs)
 
+ contributed libraries required, i got them from Collin's repository:
+ MemoryFree
+ Wire_EEPROM
+ can_common
+ due_wire
+ 
 Known Bugs:
 
 - System hangs once a day and must be restarted. Reason unknown.
 
-See it in action here: <a href="http://www.afrothunder.com/solar.html">LongDog Power Plant</a>
 
 Arduino compatible project to interface with the BMS slave 
 board on Tesla Model S modules.
