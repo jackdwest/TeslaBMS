@@ -1,15 +1,18 @@
+forked from BobbyBleacher.  In order to compile you will need the following libraries which I downloaded from Collin's repository:
+
+due_can.h
+due_wire.h
+Wire_EEPROM.h
+MemoryFree.h
+
+Planned changes include serial communication with an Electric Imp for internet connectivity and browser display of data.
+
 My take on Collin's BMS. Changes listed below:
 
 - Now balances to the lowest cell between two packs connected together in series.
 - CSV output for those that might use it.
 - Cells balance for 30s and then update again, turning the balancers off momentarily to get accurate readings.
 - Baud set 612500 (I have older Tesla packs)
-
- contributed libraries required, i got them from Collin's repository:
- MemoryFree
- Wire_EEPROM
- can_common
- due_wire
  
 Known Bugs:
 
