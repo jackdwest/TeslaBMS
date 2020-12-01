@@ -1,9 +1,9 @@
-forked from BobbyBleacher.  In order to compile you will need the following libraries which I downloaded from Collin's repository:
+Forked from BobbyBleacher.  In order to compile you will need the following libraries:
 
-due_can.h
-due_wire.h
-Wire_EEPROM.h
-MemoryFree.h
+ - due_can.h (https://github.com/collin80/due_can)
+ - due_wire.h (https://github.com/collin80/due_wire)
+ - Wire_EEPROM.h (https://github.com/collin80/Wire_EEPROM)
+ - MemoryFree.h (https://github.com/McNeight/MemoryFree)
 
 Planned changes include serial communication with an Electric Imp for internet connectivity and browser display of data.
 
