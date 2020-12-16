@@ -5,7 +5,7 @@ Forked from BobbyBleacher.  In order to compile you will need the following libr
  - Wire_EEPROM.h (https://github.com/collin80/Wire_EEPROM)
  - MemoryFree.h (https://github.com/McNeight/MemoryFree)
 
-Planned changes include serial communication with an Electric Imp for internet connectivity and browser display of data.
+Planned changes include serial communication with an Electric Imp for internet connectivity and browser display of data.  Addition of local LCD display using I2C to display pack voltage and low/high or max-min cell voltages.
 
 My take on Collin's BMS. Changes listed below:
 
