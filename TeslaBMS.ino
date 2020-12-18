@@ -1,3 +1,4 @@
+
 #if defined (__arm__) && defined (__SAM3X8E__)
 #include <chip.h>
 #endif
@@ -10,6 +11,11 @@
 #include <due_can.h>
 #include <due_wire.h>
 #include <Wire_EEPROM.h>
+#include <MemoryFree.h>
+#include <Adafruit_RGBLCDShield.h>
+#include <utility/Adafruit_MCP23017.h>
+
+Adafruit_RGBLCDShield lcd = Adafruit_RGBLCDShield();
 
 #define BMS_BAUD  612500
 //#define BMS_BAUD  631578
@@ -18,8 +24,8 @@
 BMSModuleManager bms;
 EEPROMSettings settings;
 SerialConsole console;
-unsigned long previousMillis=0;
-int interval = 30000;
+unsigned long previousMillis=0; 
+unsigned long interval = 30000;
 
 //This code only applicable to Due to fixup lack of functionality in the arduino core.
 #if defined (__arm__) && defined (__SAM3X8E__)
@@ -91,6 +97,11 @@ void initializeCAN()
 
 void setup() 
 {
+  lcd.begin(16,2);
+  lcd.blink();
+  lcd.print("go go go!");  //test the Adafruit LCD shield
+
+  
     delay(4000);  //just for easy debugging. It takes a few seconds for USB to come up properly on most OS's
     SERIALCONSOLE.begin(115200);
     SERIALCONSOLE.println(F("Starting up!"));
