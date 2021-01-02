@@ -12,10 +12,10 @@
 #include <due_wire.h>
 #include <Wire_EEPROM.h>
 #include <MemoryFree.h>
-#include <Adafruit_RGBLCDShield.h>
-#include <utility/Adafruit_MCP23017.h>
+//#include <Adafruit_RGBLCDShield.h>  //for adafruit 16x2 I2C LCD
+//#include <utility/Adafruit_MCP23017.h>  //I2C shield for LCD
 
-Adafruit_RGBLCDShield lcd = Adafruit_RGBLCDShield();
+//Adafruit_RGBLCDShield lcd = Adafruit_RGBLCDShield();
 
 #define BMS_BAUD  612500
 //#define BMS_BAUD  631578
@@ -94,13 +94,16 @@ void initializeCAN()
         Can0.setRXFilter(1, id, 0x1FFF0000ul, true);
     }
 }
-
+/*
+void initializeLCD()
+{
+    lcd.begin(16,2);
+    lcd.noBlink();
+    lcd.print("   Tesla BMS");
+}
+*/
 void setup() 
 {
-  lcd.begin(16,2);
-  lcd.blink();
-  lcd.print("go go go!");  //test the Adafruit LCD shield
-
   
     delay(4000);  //just for easy debugging. It takes a few seconds for USB to come up properly on most OS's
     SERIALCONSOLE.begin(115200);
@@ -116,6 +119,7 @@ void setup()
 
     loadSettings();
     initializeCAN();
+    //initializeLCD();
 
     systemIO.setup();
 
@@ -138,11 +142,18 @@ void loop()
     if ((unsigned long)(currentMillis - previousMillis) >= interval)
     {    
         previousMillis = currentMillis;
-        //bms.balanceCells();
         bms.getAllVoltTemp();
         bms.balanceCells();
+/*
+        //print to the lcd
+        lcd.clear();
+        lcd.print("Pack V= ");
+        lcd.print(bms.getPackVoltage());
+        lcd.setCursor(0,1);  //line 2
+        lcd.print("max-min= ");
+        lcd.print("????mv");
+        */
     }
-
     if (Can0.available()) {
         Can0.read(incoming);
         bms.processCANMsg(incoming);

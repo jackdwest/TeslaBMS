@@ -35,10 +35,14 @@ template<class T> inline Print &operator <<(Print &obj, T arg) { obj.print(arg);
 extern EEPROMSettings settings;
 extern BMSModuleManager bms;
 
-bool printPrettyDisplay;
+bool printDisplay;      //true = print
 unsigned long displayPreviousMillis=0;
 
-int whichDisplay;
+#define NONE 0      //Constants to define which display is sent to the serial monitor
+#define SUMMARY 1
+#define DETAILS 2
+#define JSON 3
+byte whichDisplay;     //the variable to hold them
 
 SerialConsole::SerialConsole() {
     init();
@@ -48,25 +52,22 @@ void SerialConsole::init() {
     //State variables for serial console
     ptrBuffer = 0;
     state = STATE_ROOT_MENU;
-    loopcount=0;
-    cancel=false;
-    printPrettyDisplay = false;
-    //prettyCounter = 0;
-    whichDisplay = 2;
+    printDisplay = false;
+    whichDisplay = NONE;
 }
 
 void SerialConsole::loop() {
      unsigned long currentMillis = millis();
-     int interval = 3000;
+     unsigned long interval = 3000;
     if (SERIALCONSOLE.available()) {
         serialEvent();
     }
-    if (printPrettyDisplay && ((unsigned long)(currentMillis - displayPreviousMillis) >= interval))
+    if (printDisplay && ((currentMillis - displayPreviousMillis) >= interval))
     {
         displayPreviousMillis = currentMillis;
-        if (whichDisplay == 0) bms.printPackSummary();
-        if (whichDisplay == 1) bms.printPackDetails();
-        if (whichDisplay == 2) bms.jsonData();
+        if (whichDisplay == SUMMARY) bms.printPackSummary();
+        if (whichDisplay == DETAILS) bms.printPackDetails();
+        if (whichDisplay == JSON) bms.jsonData();
     }
 }
 
@@ -83,8 +84,9 @@ void SerialConsole::printMenu() {
     Logger::console("   F = Find all connected boards");
     Logger::console("   R = Renumber connected boards in sequence");
     Logger::console("   B = Attempt balancing for 5 seconds");
-    Logger::console("   p = Toggle output of pack summary every 3 seconds");
-    Logger::console("   d = Toggle output of pack details every 3 seconds");
+    Logger::console("   p = Display pack summary every 3 seconds, toggle off");
+    Logger::console("   d = Display pack details every 3 seconds, toggle off");
+    Logger::console("   j = display JSON Data every 3 seconds, toggle off");
 
     Logger::console("   LOGLEVEL=%i - set log level (0=debug, 1=info, 2=warn, 3=error, 4=off)", Logger::getLogLevel());
     Logger::console("   CANSPEED=%i - set first CAN bus speed", settings.canSpeed);
@@ -299,51 +301,51 @@ void SerialConsole::handleShortCmd() {
         bms.balanceCells();
         break;
     case 'p':
-        if (whichDisplay == 1 && printPrettyDisplay) whichDisplay = 0;
+    case 'P':
+        if (whichDisplay == SUMMARY)//already displaying summary so toggle off
+        {
+            printDisplay = false;
+            whichDisplay = NONE;
+            Logger::console("No longer displaying pack summary");
+        }    
         else
         {
-            printPrettyDisplay = !printPrettyDisplay;
-            if (printPrettyDisplay)
-            {
-                Logger::console("Enabling pack summary display, 3 second interval");
-            }
-            else
-            {
-                Logger::console("No longer displaying pack summary.");
-            }
+            whichDisplay = SUMMARY;
+            printDisplay = true;
+            Logger::console("Enabling pack summary display");
         }
         break;
+
     case 'd':
-        if (whichDisplay == 0 && printPrettyDisplay) whichDisplay = 1;
+    case 'D':
+        if (whichDisplay == DETAILS)//already displaying details so toggle off
+        {
+            printDisplay = false;
+            whichDisplay = NONE;
+            Logger::console("No longer displaying pack details");
+        }
         else
         {
-            printPrettyDisplay = !printPrettyDisplay;
-            whichDisplay = 1;
-            if (printPrettyDisplay)
-            {
-                Logger::console("Enabling pack details display, 3 second interval");
-            }
-            else
-            {
-                Logger::console("No longer displaying pack details.");
-            }
+            whichDisplay = DETAILS;
+            printDisplay = true;
+            Logger::console("Enabling pack details display");
         }
         break;
-     case 'j':
-        if ((whichDisplay == 1 || whichDisplay == 0) && printPrettyDisplay) whichDisplay = 2;
+
+    case 'j':
+    case 'J':
+        if(whichDisplay == JSON)//already displaying json so toggle off
+        {
+            printDisplay = false;
+            whichDisplay = NONE;
+            Logger::console("No longer displaying JSON details");
+        }
         else
         {
-            printPrettyDisplay = !printPrettyDisplay;
-            whichDisplay = 2;
-            if (printPrettyDisplay)
-            {
-                Logger::console("Enabling JSON display, 3 second interval");
-            }
-            else
-            {
-                Logger::console("No longer displaying JSON.");
-            }
+            whichDisplay = JSON;
+            printDisplay = true;
+            Logger::console("Enabling JSON display");
         }
-        break;
+        break;   
     }
 }
