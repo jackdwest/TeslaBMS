@@ -5,6 +5,8 @@
 #include "MemoryFree.h"
 
 extern EEPROMSettings settings;
+float lowestCellVolt = 10.0f;
+float highestCellVolt = 0.0f;
 
 BMSModuleManager::BMSModuleManager()
 {
@@ -233,6 +235,8 @@ void BMSModuleManager::wakeBoards()
 
 void BMSModuleManager::getAllVoltTemp()
 {
+    float lowestCellV = 10.0f;
+    float highestCellV = 0.0f;
     packVolt = 0.0f;
     for (int x = 1; x <= MAX_MODULE_ADDR; x++)
   {
@@ -254,13 +258,24 @@ void BMSModuleManager::getAllVoltTemp()
             Logger::debug("Temp1: %f       Temp2: %f", modules[x].getTemperature(0), modules[x].getTemperature(1));
             packVolt += modules[x].getModuleVoltage();
             if (modules[x].getLowTemp() < lowestPackTemp) lowestPackTemp = modules[x].getLowTemp();
-            if (modules[x].getHighTemp() > highestPackTemp) highestPackTemp = modules[x].getHighTemp();            
+            if (modules[x].getHighTemp() > highestPackTemp) highestPackTemp = modules[x].getHighTemp();
+
+            //save some values for local lcd:
+            if (modules[x].getLowCellV() < lowestCellV) lowestCellV = modules[x].getLowCellV();
+            if (modules[x].getHighCellV() > highestCellV) highestCellV = modules[x].getHighCellV();           
         }
     }
     
     if (packVolt > highestPackVolt) highestPackVolt = packVolt;
     if (packVolt < lowestPackVolt) lowestPackVolt = packVolt;
-    packVolt = (packVolt/numFoundModules)*2;
+    packVolt = (packVolt/numFoundModules);  //multiply by 2 for 2SxP packs
+    lowestCellVolt = lowestCellV;   //global var
+    highestCellVolt = highestCellV;
+
+    //the above packVolt= doesnt work for anything but 48V packs (2SxP)  try below instead for two in series packs:
+    // the advantage is result is actual pack volts as oppsed to average*2
+
+   // packVolt = modules[0].getModuleVoltage() + modules[1].getModuleVoltage();
 
     if (digitalRead(13) == LOW) {
         if (!isFaulted) Logger::error("One or more BMS modules have entered the fault state!");

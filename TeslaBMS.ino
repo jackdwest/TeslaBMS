@@ -12,10 +12,10 @@
 #include <due_wire.h>
 #include <Wire_EEPROM.h>
 #include <MemoryFree.h>
-//#include <Adafruit_RGBLCDShield.h>  //for adafruit 16x2 I2C LCD
-//#include <utility/Adafruit_MCP23017.h>  //I2C shield for LCD
+#include <Adafruit_RGBLCDShield.h>  //for adafruit 16x2 I2C LCD
+#include <utility/Adafruit_MCP23017.h>  //I2C shield for LCD
 
-//Adafruit_RGBLCDShield lcd = Adafruit_RGBLCDShield();
+Adafruit_RGBLCDShield lcd = Adafruit_RGBLCDShield();
 
 #define BMS_BAUD  612500
 //#define BMS_BAUD  631578
@@ -26,6 +26,8 @@ EEPROMSettings settings;
 SerialConsole console;
 unsigned long previousMillis=0; 
 unsigned long interval = 30000;
+extern float lowestCellVolt;
+extern float highestCellVolt;
 
 //This code only applicable to Due to fixup lack of functionality in the arduino core.
 #if defined (__arm__) && defined (__SAM3X8E__)
@@ -94,14 +96,14 @@ void initializeCAN()
         Can0.setRXFilter(1, id, 0x1FFF0000ul, true);
     }
 }
-/*
+
 void initializeLCD()
 {
     lcd.begin(16,2);
     lcd.noBlink();
     lcd.print("   Tesla BMS");
 }
-*/
+
 void setup() 
 {
   
@@ -119,7 +121,7 @@ void setup()
 
     loadSettings();
     initializeCAN();
-    //initializeLCD();
+    initializeLCD();
 
     systemIO.setup();
 
@@ -144,15 +146,14 @@ void loop()
         previousMillis = currentMillis;
         bms.getAllVoltTemp();
         bms.balanceCells();
-/*
+
         //print to the lcd
         lcd.clear();
         lcd.print("Pack V= ");
         lcd.print(bms.getPackVoltage());
         lcd.setCursor(0,1);  //line 2
         lcd.print("max-min= ");
-        lcd.print("????mv");
-        */
+        lcd.print(highestCellVolt - lowestCellVolt);
     }
     if (Can0.available()) {
         Can0.read(incoming);
