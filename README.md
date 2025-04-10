@@ -26,8 +26,8 @@ My take on Collin's BMS. Changes listed below:
  
 Known Bugs:
 
-- System hangs once a day and must be restarted. Reason unknown.
-- Minor bug with display of data to Serial Console
+- System hangs once a day and must be restarted. Reason unknown.  SOLVED
+- Minor bug with display of data to Serial Console. SOLVED
 
 
 Arduino compatible project to interface with the BMS slave 
